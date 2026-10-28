@@ -1,13 +1,13 @@
 # Feasibility checks
 
 **Status:** proposed checks; none of the platform integration checks below has run.  
-**Last updated:** 2026-10-26
+**Last updated:** 2026-10-28
 
 ## Purpose
 
-Determine whether the candidate free stack can support recurring ingestion and an independently accessible application before committing to a detailed implementation plan.
+Determine whether the candidate Azure-based stack can support event-driven ingestion and an independently accessible application within the spending ceiling (D16) before committing to a detailed implementation plan.
 
-Existing source API reads are documented in [data sources](data-sources.md). They do not establish connectivity from a hosted collector or Databricks.
+Existing source API reads are documented in [data sources](data-sources.md). They do not establish connectivity from a hosted collector or Azure.
 
 ## Acceptance evidence
 
@@ -15,14 +15,15 @@ Record the execution date, environment, method, result, limitations, and a sanit
 
 | ID | Check | Evidence needed | Current status |
 | --- | --- | --- | --- |
-| F01 | Access Intervals.icu from the candidate collector environment | Authenticated activity and wellness reads with secrets kept private; document access restrictions | Not run |
-| F02 | Deliver a complete file to managed storage | A synthetic file uploaded and read from the intended Unity Catalog volume using a supported mechanism | Not run |
-| F03 | Trigger a job on file arrival | Actual workspace capability verified and a synthetic new file causes a job run; record delay and repeat behavior | Not run |
-| F04 | Process files into Delta | A small synthetic batch can be preserved, parsed, and persisted; repeat processing has defined duplicate behavior | Not run |
-| F05 | Publish results to hosted PostgreSQL | A synthetic output can be written, read, and safely republished from the intended publisher environment | Not run |
+| F01 | Access Intervals.icu from the candidate Azure environment | Authenticated activity and wellness reads from an Azure Function with secrets kept private; document access restrictions | Not run |
+| F02 | Deliver a complete file to ADLS Gen2 | A synthetic file written by the Azure Function and read back from the intended container using a supported mechanism; no incomplete file is visible to readers | Not run |
+| F03 | Register and receive an Intervals.icu webhook on a personal account | Confirm whether an app and webhook can be registered without a public OAuth app; an `ACTIVITY_UPLOADED` event for a real or test activity reaches an HTTPS endpoint; secret verification, 2xx handling, retry, and duplicate delivery behavior recorded; observed delay recorded | Not run |
+| F04 | Run PySpark and Delta on ADLS in an on-demand job | A container job starts from the receiving function (or Event Grid), reads a small synthetic batch from ADLS, writes Delta tables, and exits; repeat processing has defined duplicate behavior; start-up and run time recorded | Not run |
+| F05 | Publish results to hosted PostgreSQL | A synthetic output can be written, read, and safely republished from the processing job (for example over JDBC to Neon) | Not run |
 | F06 | Host Django independently | A minimal authenticated application can read/write synthetic records on Vercel and Neon from desktop and mobile without the owner's computer | Not run |
 | F07 | Refresh wellness unattended | With normal watch-to-Zepp sync and without visiting the Intervals.icu website, API reads show a newly available wellness measurement | Not run |
-| F08 | Observe free-tier resource use | Representative small runs and application access have recorded quota consumption and no unapproved paid resources | Not run |
+| F08 | Observe resource use and cost against the ceiling | Current Azure pricing and free grants checked for Storage, Functions, and Container Apps jobs; a hard spending cap or equivalent control is in place; representative small runs have recorded consumption and cost below 20 BRL per month (D16) | Not run |
+| F09 | Fallback trigger (only if F03 fails) | A timer-triggered poll or GitHub Actions workflow collects new activities and starts the same processing path; observed delay recorded | Not run |
 
 A proof should be disposable and small. It is not permission to implement the entire application, provision paid infrastructure, or invent production business rules.
 
@@ -33,25 +34,27 @@ A proof should be disposable and small. It is not permission to implement the en
 - Compare the smallest alternatives.
 - Bring material architecture or budget decisions to Samuel.
 
-Possible alternatives include an external collector, supported API upload, API-triggered jobs, scheduled processing, or an external publisher. These are hypotheses until tested. Do not solve platform restrictions by publishing private data.
+Possible alternatives include scheduled polling, GitHub Actions, an Event Grid trigger on blob creation, or an external publisher. These are hypotheses until tested. Do not solve platform restrictions by publishing private data.
 
 ## Important boundaries
 
-### File arrival
+### Webhooks and delivery
 
-The source must be collected before a file-arrival trigger can act. A storage trigger does not subscribe to activity creation in Intervals.icu.
+Intervals.icu documents webhooks configured per app ("Manage App" in settings). It does not state whether a personal API-key user can register one, so F03 comes first. Documented behavior to verify rather than assume: activity webhooks are not delivered for Strava activities; a non-2xx response causes a retry; duplicates can occur; some events (for example `ACTIVITY_ANALYZED`) are sent after a delay of about 60 seconds.
 
-Verify whether overwrites are detected and how incomplete uploads are avoided. Prefer an explicit input-completeness approach chosen after examining the upload mechanism.
+The pipeline starts when Intervals.icu has the activity. The delay before that (watch to Zepp app to Intervals.icu) is outside its control and should be observed, not targeted.
+
+The receiving endpoint should acknowledge quickly, write the payload as a complete file, and leave processing to the job. Verify whether overwrites are detected and how incomplete writes are avoided.
 
 ### Wellness
 
-Prior historical reads succeeded. Ongoing unattended wellness refresh remains uncertain. A forum report indicates website visits affected synchronization for some users. Test current account behavior; do not assume the report proves a current universal limitation.
+Prior historical reads succeeded. No wellness webhook is documented, so wellness is collected in batches by polling; the frequency is undecided (Q15). Ongoing unattended wellness refresh remains uncertain. A forum report indicates website visits affected synchronization for some users. Test current account behavior; do not assume the report proves a current universal limitation.
 
-### Free tiers and availability
+### Cost and availability
 
-A free plan is a resource-limited offering, not a permanent availability guarantee. Measure the likely load before committing to it.
+Azure services bill by usage, and some offer free monthly grants. Check current prices and grants before enabling anything (F08); they change. The approved ceiling is 20 BRL per month (D16). A budget alert alone is not a spending cap.
 
-If no acceptable free route exists, document the trade-off and revisit a component or trigger. No paid monthly amount has been approved.
+If the stack cannot stay within the ceiling, document the trade-off and bring the choice to Samuel.
 
 ## Completion rule
 
@@ -74,9 +77,10 @@ Before detailed implementation, choose the initial business questions, refresh t
 
 ## References
 
-- [Free Edition limitations](https://docs.databricks.com/aws/en/getting-started/free-edition-limitations)
-- [Working with volume files](https://docs.databricks.com/aws/en/volumes/volume-files)
-- [File-arrival triggers](https://docs.databricks.com/aws/en/jobs/file-arrival-triggers)
+- [Intervals.icu API Integration Cookbook (webhooks)](https://forum.intervals.icu/t/intervals-icu-api-integration-cookbook/80090)
+- [Azure Data Lake Storage Gen2 introduction](https://learn.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-introduction)
+- [Azure Container Apps jobs](https://learn.microsoft.com/en-us/azure/container-apps/jobs)
+- [Azure Blob Storage events](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-event-overview)
 - [Django on Vercel](https://vercel.com/docs/frameworks/full-stack/django)
 - [Neon pricing](https://neon.com/pricing)
 - [Wellness synchronization discussion](https://forum.intervals.icu/t/wellness-data-sleep-only-syncs-from-zepp-after-manual-web-login/122754)

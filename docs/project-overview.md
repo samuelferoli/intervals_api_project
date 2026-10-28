@@ -17,11 +17,12 @@ The project uses real personal data from Intervals.icu. Exercises, sets, repetit
 | Responsibility | Technology or approach | Status |
 | --- | --- | --- |
 | Activity and wellness source | Intervals.icu API, receiving data directly from Zepp | Reads verified; unattended wellness refresh still to verify |
-| Ingestion and integration | Python | Selected; execution environment open |
+| Ingestion and integration | Python, on an Azure Function receiving Intervals.icu webhooks | Python selected; Azure Function proposed (D15) |
 | Lakehouse | Delta Lake with bronze, silver, and gold layers | Selected architectural direction |
-| Processing | Databricks Free Edition with PySpark/SQL | Conditionally selected, subject to feasibility checks |
-| Lake storage | Databricks-managed storage and Unity Catalog volumes | Leading candidate; not yet validated |
-| Processing trigger | File arrival | Preferred; Free Edition support not yet verified |
+| Processing | PySpark and Delta Lake in an on-demand Azure Container Apps job | PySpark selected (D14); job environment proposed (D15) |
+| Lake storage | ADLS Gen2 | Selected (D09); access and cost to be confirmed |
+| Processing trigger | Intervals.icu webhook (`ACTIVITY_UPLOADED`) | Preferred; webhook registration on a personal account not yet verified (F03) |
+| Spending ceiling | Up to 20 BRL per month | Accepted (D16) |
 | Application database | PostgreSQL | Selected |
 | Database hosting | Neon Free | Candidate |
 | Application | Django, usable on desktop and mobile | Selected |
@@ -39,7 +40,7 @@ Samuel has verified the following in his own account:
 - The activities API returned real activity records with Zepp as their source.
 - The wellness API returned records containing sleep and other daily measurements.
 
-These checks do not yet establish a fully unattended pipeline, a measured delivery delay, or compatibility with Databricks Free Edition.
+These checks do not yet establish a fully unattended pipeline, a measured delivery delay, or compatibility with the Azure-based stack.
 
 ## Documentation
 
@@ -58,7 +59,7 @@ Start with the [documentation guide](README.md).
 
 There are no installation or execution instructions yet because application code, dependencies, and infrastructure have not been created. Add verified instructions as each component becomes runnable.
 
-The next step is a human review of these documents, followed by the feasibility checks that determine whether the proposed free stack can support the project.
+The next step is a human review of these documents, followed by the feasibility checks that determine whether the proposed Azure-based stack can support the project within the spending ceiling.
 
 ## Public portfolio and private data
 
