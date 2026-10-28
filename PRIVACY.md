@@ -2,7 +2,7 @@
 
 **Effective date:** 2026-10-28
 
-This policy covers the Intervals API Project, a personal, single-user application built by Samuel Fernandes as a data engineering project.
+This policy covers Pacelake, a personal, single-user application built by Samuel Fernandes as a data engineering project.
 
 ## Who uses it
 

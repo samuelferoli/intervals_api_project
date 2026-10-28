@@ -1,6 +1,8 @@
-# Intervals API Project
+# Pacelake
 
 A personal training and wellness application built around a data engineering pipeline.
+
+Pacelake is a temporary working name for this personal project.
 
 **Status:** early documentation and feasibility review. The application and pipeline have not been implemented.
 
