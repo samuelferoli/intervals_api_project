@@ -20,7 +20,7 @@ Samuel reviewed and confirmed D01-D07 on 2026-10-28 (Phase 0).
 | D07 | Application technologies | Accepted | Django and PostgreSQL match the owner's skills and application needs. |
 | D08 | Databricks edition | Superseded (2026-10-28) | Samuel removed Databricks from the stack. The Free Edition checks (storage, file-arrival trigger, PostgreSQL reachability) were never run and are replaced by the Azure-based checks. Replaced by D09, D10, and D14. |
 | D09 | Primary lake storage | Accepted | ADLS Gen2 on Azure. Chosen by Samuel for Azure experience and expected low, usage-based cost. Access and cost remain to be confirmed in F02 and F08. |
-| D10 | Processing trigger | Conditional | Webhook-driven: an Intervals.icu `ACTIVITY_UPLOADED` event reaches an HTTPS endpoint and starts the pipeline. Depends on F03 (webhook registration on a personal account). Fallback candidates: scheduled API polling or GitHub Actions; choose with Samuel if F03 fails or cost is too high. |
+| D10 | Processing trigger | Conditional | Webhook-driven: Intervals.icu activity events (`ACTIVITY_UPLOADED`, `ACTIVITY_UPDATED`, `ACTIVITY_DELETED`, `ACTIVITY_ANALYZED`) and `WELLNESS_UPDATED` reach an HTTPS endpoint and start the pipeline. A low-frequency poll catches missed events (Q15). Webhooks require an Intervals.icu OAuth app, which is reviewed before approval. Depends on F03. Fallback candidates: scheduled API polling or GitHub Actions; choose with Samuel if F03 fails or cost is too high. |
 | D11 | Hosting | Proposed | Vercel Hobby for Django and Neon Free for PostgreSQL, subject to a deployment and quota check. |
 | D12 | Dedicated warehouse service | Proposed exclusion | Keep analytical data in Delta and publish the needed serving subset to PostgreSQL; review only if a concrete need emerges. |
 | D13 | LLM integration | Deferred | Consider grounded summaries or recommendations after the underlying data and metric definitions are reliable. |
@@ -41,7 +41,7 @@ Samuel reviewed and confirmed D01-D07 on 2026-10-28 (Phase 0).
 | Q09 | How are application records linked to imported sessions? | Connects manually recorded exercises with source activities | Samuel |
 | Q10 | What retention, backup, deletion, and recovery behavior is needed? | Defines data lifecycle and recovery expectations | Samuel |
 | Q11 | Which license should the repository use? | Establishes reuse terms | Samuel |
-| Q15 | How often is wellness polled (batch schedule)? | Determines sleep-analysis freshness and resource use; relates to F07 | Samuel, as the project advances |
+| Q15 | How often does the safety-net poll run? | Bounds how long a missed webhook can go unnoticed, and affects resource use; relates to F07 | Samuel, as the project advances |
 | Q16 | Are sleep stages or other sleep fields beyond duration, score, and quality available and needed? | Sleep analysis may need more than the fields Samuel expects to be reliable | Samuel, after inspecting sample wellness records |
 
 ## Resolved questions
@@ -52,7 +52,7 @@ Samuel reviewed and confirmed D01-D07 on 2026-10-28 (Phase 0).
 | Q06 | What paid monthly maximum is acceptable? | Up to 20 BRL per month. Recorded as D16. | 2026-10-28 |
 | Q12 | Do gym sessions come from the watch or only from manual records? | Gym sessions come from the watch as Intervals.icu activities. The specific exercises and sets within a session are entered manually in the app (R06, D05). The activity type that identifies a gym session still needs to be confirmed in sample data. | 2026-10-28 |
 | Q13 | Which sleep fields are reliable? | Samuel reports that resting heart rate, sleep score, sleep duration, and sleep quality are certain to be present. Sleep stages are not established; see Q16. Field names and units still need validation against sample payloads. | 2026-10-28 |
-| Q14 | How and how often is wellness data collected? | In batches, with polling, because no wellness webhook is documented. The frequency is deferred (Q15). | 2026-10-28 |
+| Q14 | How and how often is wellness data collected? | First answered as batch polling, based on an AI-reported claim that no wellness webhook existed. The OAuth application form lists `WELLNESS_UPDATED`, so Samuel chose the webhook as the trigger, with a low-frequency safety-net poll (Q15). | 2026-10-28 |
 
 ## Recording a substantial decision
 

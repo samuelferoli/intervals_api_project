@@ -17,7 +17,7 @@ Record the execution date, environment, method, result, limitations, and a sanit
 | --- | --- | --- | --- |
 | F01 | Access Intervals.icu from the candidate Azure environment | Authenticated activity and wellness reads from an Azure Function with secrets kept private; document access restrictions | Not run |
 | F02 | Deliver a complete file to ADLS Gen2 | A synthetic file written by the Azure Function and read back from the intended container using a supported mechanism; no incomplete file is visible to readers | Not run |
-| F03 | Register and receive an Intervals.icu webhook on a personal account | Confirm whether an app and webhook can be registered without a public OAuth app; an `ACTIVITY_UPLOADED` event for a real or test activity reaches an HTTPS endpoint; secret verification, 2xx handling, retry, and duplicate delivery behavior recorded; observed delay recorded | Not run |
+| F03 | Register and receive an Intervals.icu webhook on a personal account | OAuth app approved and authorized for Samuel's account; an `ACTIVITY_UPLOADED` and a `WELLNESS_UPDATED` event for a real or test activity reaches an HTTPS endpoint; secret verification, 2xx handling, retry, and duplicate delivery behavior recorded; observed delay recorded | Not run |
 | F04 | Run PySpark and Delta on ADLS in an on-demand job | A container job starts from the receiving function (or Event Grid), reads a small synthetic batch from ADLS, writes Delta tables, and exits; repeat processing has defined duplicate behavior; start-up and run time recorded | Not run |
 | F05 | Publish results to hosted PostgreSQL | A synthetic output can be written, read, and safely republished from the processing job (for example over JDBC to Neon) | Not run |
 | F06 | Host Django independently | A minimal authenticated application can read/write synthetic records on Vercel and Neon from desktop and mobile without the owner's computer | Not run |
@@ -40,7 +40,7 @@ Possible alternatives include scheduled polling, GitHub Actions, an Event Grid t
 
 ### Webhooks and delivery
 
-Intervals.icu documents webhooks configured per app ("Manage App" in settings). It does not state whether a personal API-key user can register one, so F03 comes first. Documented behavior to verify rather than assume: activity webhooks are not delivered for Strava activities; a non-2xx response causes a retry; duplicates can occur; some events (for example `ACTIVITY_ANALYZED`) are sent after a delay of about 60 seconds.
+The Intervals.icu OAuth application form states that webhooks require an OAuth app; a personal API key cannot receive them. Applications are reviewed manually. The form requires a name, description, website, privacy policy, platforms, and categories. A pending app cannot complete the OAuth flow, so webhook delivery to Samuel's own account depends on approval. Webhook URLs (HTTPS only), an authorization header, and event types are configured on the app. Documented behavior to verify rather than assume: activity webhooks are not delivered for Strava activities; a non-2xx response causes a retry; duplicates can occur; some events (for example `ACTIVITY_ANALYZED`) are sent after a delay of about 60 seconds.
 
 The pipeline starts when Intervals.icu has the activity. The delay before that (watch to Zepp app to Intervals.icu) is outside its control and should be observed, not targeted.
 
@@ -48,7 +48,7 @@ The receiving endpoint should acknowledge quickly, write the payload as a comple
 
 ### Wellness
 
-Prior historical reads succeeded. No wellness webhook is documented, so wellness is collected in batches by polling; the frequency is undecided (Q15). Ongoing unattended wellness refresh remains uncertain. A forum report indicates website visits affected synchronization for some users. Test current account behavior; do not assume the report proves a current universal limitation.
+Prior historical reads succeeded. Wellness uses the `WELLNESS_UPDATED` webhook plus a safety-net poll (Q15). The webhook fires only when Intervals.icu receives new data, so the synchronization risk below still applies. Ongoing unattended wellness refresh remains uncertain. A forum report indicates website visits affected synchronization for some users. Test current account behavior; do not assume the report proves a current universal limitation.
 
 ### Cost and availability
 
