@@ -54,7 +54,7 @@ A storage trigger monitors storage. It does not discover new activities in Inter
 
 Preferred approach (D10, conditional): Intervals.icu sends an `ACTIVITY_UPLOADED` webhook to an HTTPS endpoint. The endpoint verifies the request, writes the payload to ADLS, returns 2xx, and starts the processing job directly. An Event Grid trigger on blob creation is an alternative way to start the job. Whether a personal account can register a webhook is unverified (F03).
 
-Intervals.icu documents no wellness webhook, so wellness data is collected in batches by polling; the frequency is undecided (Q15).
+Wellness uses the `WELLNESS_UPDATED` webhook in the same way. A low-frequency safety-net poll catches missed activity or wellness events (Q15).
 
 Fallbacks if webhooks are unavailable: scheduled API polling, or GitHub Actions (F09).
 

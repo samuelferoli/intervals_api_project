@@ -48,11 +48,12 @@ No evidence establishes availability of detailed sleep stages, exercise-level se
 
 ### Webhooks (documented, not tested)
 
-Reported in the [API integration cookbook](https://forum.intervals.icu/t/intervals-icu-api-integration-cookbook/80090) on 2026-10-28; none of this has been exercised in Samuel's account.
+Reported in the [API integration cookbook](https://forum.intervals.icu/t/intervals-icu-api-integration-cookbook/80090) and the Intervals.icu OAuth application form on 2026-10-28; none of this has been exercised in Samuel's account.
 
-- Event types include `ACTIVITY_UPLOADED` and `ACTIVITY_ANALYZED` (sent after about 60 seconds). No wellness event is listed.
+- Selected event types: `ACTIVITY_UPLOADED`, `ACTIVITY_UPDATED`, `ACTIVITY_DELETED`, `ACTIVITY_ANALYZED` (sent after about 60 seconds), and `WELLNESS_UPDATED`. The form also lists `APP_SCOPE_CHANGED`, calendar, chat, fitness, and settings events.
 - Activity webhooks are not delivered for Strava activities.
-- Webhooks are configured per app ("Manage App" in settings). Whether a personal API-key user can register one is not stated (F03).
+- Webhooks require an OAuth app, which Intervals.icu reviews before approval. A personal API key cannot receive them (F03).
+- Webhook URLs must be HTTPS. An optional authorization header can be configured for each app.
 - Each POST carries a `secret` for verification and an `events` array (`athlete_id`, `type`, `timestamp`, type-specific body).
 - A non-2xx response causes a retry with backoff, and duplicates can occur.
 
