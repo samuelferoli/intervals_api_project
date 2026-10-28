@@ -46,6 +46,16 @@ A null means the value is absent in the returned record. It does not, by itself,
 
 No evidence establishes availability of detailed sleep stages, exercise-level sets, repetitions, or loads from this integration. Fields must be validated before they become product requirements.
 
+### Webhooks (documented, not tested)
+
+Reported in the [API integration cookbook](https://forum.intervals.icu/t/intervals-icu-api-integration-cookbook/80090) on 2026-10-28; none of this has been exercised in Samuel's account.
+
+- Event types include `ACTIVITY_UPLOADED` and `ACTIVITY_ANALYZED` (sent after about 60 seconds). No wellness event is listed.
+- Activity webhooks are not delivered for Strava activities.
+- Webhooks are configured per app ("Manage App" in settings). Whether a personal API-key user can register one is not stated (F03).
+- Each POST carries a `secret` for verification and an `events` array (`athlete_id`, `type`, `timestamp`, type-specific body).
+- A non-2xx response causes a retry with backoff, and duplicates can occur.
+
 ### Contract questions
 
 - What are the units and exact meanings of each selected field?

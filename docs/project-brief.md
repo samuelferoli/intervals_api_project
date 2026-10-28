@@ -1,8 +1,8 @@
 # Project brief
 
 **Owner:** Samuel Fernandes  
-**Status:** initial draft for owner review  
-**Last updated:** 2026-10-26
+**Status:** draft; Phase 0 review in progress  
+**Last updated:** 2026-10-28
 
 ## Problem
 
@@ -27,11 +27,21 @@ The pipeline is the main engineering focus. The application provides a useful wa
 | R05 | Build the application with Django and make it usable on desktop and mobile. |
 | R06 | Allow manual entry of exercises, sets, repetitions, loads, and goals in the application. These details are not expected from Intervals.icu. |
 | R07 | Support one personal user and access without relying on the owner's computer remaining online. |
-| R08 | Prefer a free stack; any recurring spending should be very small and explicitly understood. No exact paid budget has been approved. |
+| R08 | Prefer a free or very low-cost stack. Samuel approved a ceiling of up to 20 BRL per month on 2026-10-28 (D16); any spending must be explicitly understood and capped. |
 | R09 | Use English for the project's development and documentation. |
 | R10 | Preserve human ownership of reasoning and decisions; AI assists learning, review, and implementation hints. |
 
-Databricks Free Edition is acceptable if ingestion, storage, processing, and delivery are feasible within its restrictions. File arrival is the preferred processing trigger, subject to verification.
+The lake uses ADLS Gen2 and processing uses PySpark with Delta Lake (D09, D14). Databricks is no longer part of the stack (D08). The preferred trigger is event-driven: a new activity in Intervals.icu starts processing through a webhook, subject to verification (D10, F03). A delay of a few minutes after the activity reaches Intervals.icu is acceptable (Q02).
+
+Samuel reviewed and confirmed R01-R10 on 2026-10-28.
+
+## First release topics
+
+Samuel chose these on 2026-10-28. The concrete questions, metrics, and formulas under each are not yet defined (Q01, Q08).
+
+- Sleep analysis.
+- Run metrics and measures.
+- Gym frequency. Gym sessions come from the watch as activities; the exercises and sets within a session are entered manually in the app (Q12).
 
 ## Product capabilities under consideration
 
@@ -53,7 +63,7 @@ No claim is made that the personal data volume requires distributed processing. 
 
 ## Proposed success criteria
 
-These are review candidates, not approved service-level targets:
+Samuel accepted these criteria on 2026-10-28. They are not numeric service-level targets:
 
 - Newly available source data can reach persisted analytical outputs through a repeatable workflow.
 - Repeating a collection or processing run does not create duplicate business records.
@@ -68,8 +78,11 @@ Numerical targets for freshness, recovery, spending, retention, and expected usa
 
 ## Questions for Samuel
 
-1. Which three questions should the first version answer?
-2. How long after a workout sync is an acceptable delay before it appears in the application?
-3. Which manual workout details are essential in the first version?
-4. Is any paid monthly amount acceptable, and what is the maximum?
-5. What would make the first version useful enough for regular personal use?
+Answered on 2026-10-28 (Phase 0):
+
+1. First topics: sleep analysis, run metrics and measures, gym frequency. Concrete questions still to define (Q01).
+2. Acceptable delay: a few minutes after the activity reaches Intervals.icu (Q02).
+4. Paid maximum: up to 20 BRL per month (D16).
+
+3. Essential manual workout details: the workout exercises, with their sets. The exact fields (repetitions, loads, units) are still to be designed (Q09).
+5. Useful enough for regular use: a working pipeline with working metrics.
